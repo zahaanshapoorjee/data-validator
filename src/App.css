@@ -90,6 +90,24 @@ td {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* App.css */
+.button-red {
+  background-color: #ff4d4d; /* A vibrant red */
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+  transition: background-color 0.3s;
+}
+
+.button-red:hover {
+  background-color: #ff3333; /* A slightly darker red on hover */
+}
+
+
 .greeting {
   color: #b22222;
   font-size: 24px;

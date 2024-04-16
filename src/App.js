@@ -14,6 +14,8 @@ function App() {
     setUserName(event.target.value);
   };
 
+  
+  
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
@@ -50,6 +52,44 @@ function App() {
       .catch(error => {
         console.error('Error:', error);
       });
+  };
+
+  const handleAddRow = () => {
+    const newDrug = {
+      name: "",
+      dosage_form: "",
+      strength: "",
+      frequency: "",
+      duration: "",
+      months: "",
+      isCompleted: false,
+    };
+  
+    const updatedCorrections = corrections.map((correction, index) => {
+      if (index === currentPage) {
+        let drugs = JSON.parse(correction.extracted_drugs.replace(/'/g, '"'));
+        drugs.push(newDrug);
+        return { ...correction, extracted_drugs: JSON.stringify(drugs) };
+      }
+      return correction;
+    });
+  
+    setCorrections(updatedCorrections);
+  };
+  
+  const handleDeleteRow = (drugIndex) => {
+    const updatedCorrections = corrections.map((correction, index) => {
+      if (index === currentPage) {
+        let drugs = JSON.parse(correction.extracted_drugs.replace(/'/g, '"'));
+        if (drugs.length > 1) { // Ensure at least one row remains
+          drugs.splice(drugIndex, 1);
+        }
+        return { ...correction, extracted_drugs: JSON.stringify(drugs) };
+      }
+      return correction;
+    });
+  
+    setCorrections(updatedCorrections);
   };
   
 
@@ -182,6 +222,8 @@ if (!isLoggedIn) {
   <Table data={patientsData[currentPage]} />
 )}          <h3>Correction</h3>
           <EditableTable
+          addRow={handleAddRow}
+          deleteRow={handleDeleteRow}
         data={corrections[currentPage]}
         onCorrectionChange={handleCorrectionChange}
         toggleCompletion={toggleCompletion}
@@ -240,7 +282,9 @@ const Table = ({ data }) => {
   );
 }
 
-const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
+
+
+const EditableTable = ({ data, onCorrectionChange, toggleCompletion, addRow, deleteRow }) => {
   let drugs = [];
   try {
     drugs = JSON.parse(data.extracted_drugs.replace(/'/g, '"'));
@@ -249,6 +293,7 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
   }
 
   return (
+    <>
     <table>
       <thead>
         <tr>
@@ -320,10 +365,13 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
                 // disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
               />
             </td>
+            <button className="button-red"  onClick={() => deleteRow(index)}>Delete</button>
           </tr>
         ))}
       </tbody>
     </table>
+          <button className="button-red"  onClick={addRow}>Add Drug</button>
+          </>
   );
 };
 
