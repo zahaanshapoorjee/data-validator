@@ -10,6 +10,7 @@ function App() {
     fetchUncorrectedAnnotations();
   }, []);
   const [userName, setUserName] = useState('');
+
   const fetchUncorrectedAnnotations = () => {
     fetch('http://localhost:8080/uncorrected-annotations')
       .then(response => response.json())
@@ -98,52 +99,47 @@ const handleCorrectionChange = (correctionIndex, column, value) => {
 
   const handleSubmit = () => {
     const patientInfo = patientsData[currentPage];
-  
-    // It seems you're intending to stringify the 'corrections' array.
-    // Make sure that's what your backend expects.
+
     const correctionsData = JSON.stringify({
-      userName,
-      patient_id: patientInfo.patient_id,
-      prescription: patientInfo.prescription,
-      extracted_drugs: corrections[currentPage].extracted_drugs,
+        userName,
+        patient_id: patientInfo.patient_id,
+        prescription: patientInfo.prescription,
+        extracted_drugs: corrections[currentPage].extracted_drugs,
     });
-  
+
     fetch('http://localhost:8080/annotations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: correctionsData,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: correctionsData,
     })
     .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to send data');
-      }
-      return response.json();
+        if (!response.ok) {
+            throw new Error('Failed to send data');
+        }
+        return response.json();
     })
     .then(data => {
-      // The backend could potentially return data that might be useful here.
-      // For now, assuming it's logging purposes.
-      console.log('Data sent successfully:', data);
-      
-      // Since we're updating based on the current page, 
-      // we need to filter out the submitted patient's data.
-      const updatedPatientsData = patientsData.filter((_, index) => index !== currentPage);
-      setPatientsData(updatedPatientsData);
-      
-      // If there are no more patients to correct, fetch more.
-      if (updatedPatientsData.length === 0) {
-        fetchUncorrectedAnnotations();
-      } else {
-        // Adjust the current page if the last patient was corrected.
-        setCurrentPage(prev => prev > 0 ? prev - 1 : 0);
-        // Update corrections for the next patient.
-      }
+        console.log('Data sent successfully:', data);
+        const updatedPatientsData = patientsData.filter((_, index) => index !== currentPage);
+        setPatientsData(updatedPatientsData);
+
+        // Update corrections to remove the current page's corrections
+        const updatedCorrections = corrections.filter((_, index) => index !== currentPage);
+        setCorrections(updatedCorrections);
+
+        // If there are no more patients to correct, fetch more.
+        if (updatedPatientsData.length === 0) {
+            fetchUncorrectedAnnotations();
+        } else {
+            // Adjust the current page if the last patient was corrected.
+            setCurrentPage(prev => prev > 0 ? prev - 1 : 0);
+        }
     })
     .catch(error => {
-      // It's important to handle errors and possibly display a message to the user.
-      console.error('Error:', error.message);
+        console.error('Error:', error.message);
     });
-  };
-  
+};
+
 
 
 
@@ -270,7 +266,7 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
                 type="checkbox"
                 checked={row.isCompleted || false}
                 onChange={() => toggleCompletion(index)}
-                disabled={index > 0 && !drugs[index - 1].isCompleted}
+                // disabled={index > 0 && !drugs[index - 1].isCompleted}
               />
             </td>
             <td>
@@ -278,7 +274,7 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
                 type="text"
                 value={row.name}
                 onChange={(e) => onCorrectionChange(index, 'name', e.target.value)}
-                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+                // disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
               />
             </td>
             <td>
@@ -286,7 +282,7 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
                 type="text"
                 value={row.dosage_form}
                 onChange={(e) => onCorrectionChange(index, 'dosage_form', e.target.value)}
-                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+                // disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
               />
             </td>
             <td>
@@ -294,7 +290,7 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
                 type="text"
                 value={row.strength}
                 onChange={(e) => onCorrectionChange(index, 'strength', e.target.value)}
-                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+                // disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
               />
             </td>
             <td>
@@ -302,7 +298,7 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
                 type="text"
                 value={row.frequency}
                 onChange={(e) => onCorrectionChange(index, 'frequency', e.target.value)}
-                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+                // disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
               />
             </td>
             <td>
@@ -310,7 +306,7 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
                 type="text"
                 value={row.duration}
                 onChange={(e) => onCorrectionChange(index, 'duration', e.target.value)}
-                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+                // disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
               />
             </td>
             <td>  
@@ -318,7 +314,7 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
                 type="text"
                 value={row.months || 'N/A'}
                 onChange={(e) => onCorrectionChange(index, 'months', e.target.value)}
-                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+                // disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
               />
             </td>
           </tr>
