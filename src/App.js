@@ -23,7 +23,7 @@ function App() {
   }, []);
 
   const handleLogin = async () => {
-    const response = await fetch('http://localhost:8080/login', {
+    const response = await fetch('https://data-validator-backend.onrender.com/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userName, password }),
@@ -38,7 +38,7 @@ function App() {
   };
 
   const fetchUncorrectedAnnotations = () => {
-    fetch('http://localhost:8080/uncorrected-annotations')
+    fetch('https://data-validator-backend.onrender.com/uncorrected-annotations')
       .then(response => response.json())
       .then(data => {
         setPatientsData(data);
@@ -119,7 +119,7 @@ const handleCorrectionChange = (correctionIndex, column, value) => {
         extracted_drugs: corrections[currentPage].extracted_drugs,
     });
 
-    fetch('http://localhost:8080/annotations', {
+    fetch('https://data-validator-backend.onrender.com/annotations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: correctionsData,
