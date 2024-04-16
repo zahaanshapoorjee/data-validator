@@ -108,7 +108,7 @@ const handleCorrectionChange = (correctionIndex, column, value) => {
       userName,
       patient_id: patientInfo.patient_id,
       prescription: patientInfo.prescription,
-      extracted_drugs: JSON.stringify(corrections[currentPage].extracted_drugs),
+      extracted_drugs: corrections[currentPage].extracted_drugs,
     });
   
     fetch('http://localhost:8080/annotations', {
@@ -210,6 +210,7 @@ const Table = ({ data }) => {
   let drugs = [];
   try {
     drugs = JSON.parse(data.extracted_drugs.replace(/'/g, '"')); // replacing single quotes with double quotes for valid JSON
+    console.log(drugs);
   } catch (error) {
     console.error("Failed to parse extracted drugs:", error);
     // Optionally handle the error more gracefully here
@@ -243,14 +244,13 @@ const Table = ({ data }) => {
 
 
 // Editable table component
+// Editable table component
 const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
-  // Attempt to parse the 'extracted_drugs' string into an array
   let drugs = [];
   try {
-    drugs = JSON.parse(data.extracted_drugs.replace(/'/g, '"')); // replacing single quotes with double quotes for valid JSON
+    drugs = JSON.parse(data.extracted_drugs.replace(/'/g, '"'));
   } catch (error) {
     console.error("Failed to parse extracted drugs:", error);
-    // Optionally handle the error more gracefully here
   }
 
   return (
@@ -263,6 +263,7 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
           <th>Strength</th>
           <th>Frequency</th>
           <th>Duration</th>
+          <th>Months</th>  
         </tr>
       </thead>
       <tbody>
@@ -271,32 +272,66 @@ const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
             <td>
               <input
                 type="checkbox"
-                checked={row.isCompleted || false} // ensure default as false if isCompleted isn't defined
+                checked={row.isCompleted || false}
                 onChange={() => toggleCompletion(index)}
                 disabled={index > 0 && !drugs[index - 1].isCompleted}
               />
             </td>
-            {Object.entries(row).map(([column, value]) => {
-              if (column !== 'isCompleted') {
-                return (
-                  <td key={column}>
-                    <input
-                      type="text"
-                      value={value!=""?value:"NA"}
-                      onChange={(e) => onCorrectionChange(index, column, e.target.value)}
-                      disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
-                    />
-                  </td>
-                );
-              }
-              return null;
-            })}
+            <td>
+              <input
+                type="text"
+                value={row.name}
+                onChange={(e) => onCorrectionChange(index, 'name', e.target.value)}
+                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+              />
+            </td>
+            <td>
+              <input
+                type="text"
+                value={row.dosage_form}
+                onChange={(e) => onCorrectionChange(index, 'dosage_form', e.target.value)}
+                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+              />
+            </td>
+            <td>
+              <input
+                type="text"
+                value={row.strength}
+                onChange={(e) => onCorrectionChange(index, 'strength', e.target.value)}
+                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+              />
+            </td>
+            <td>
+              <input
+                type="text"
+                value={row.frequency}
+                onChange={(e) => onCorrectionChange(index, 'frequency', e.target.value)}
+                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+              />
+            </td>
+            <td>
+              <input
+                type="text"
+                value={row.duration}
+                onChange={(e) => onCorrectionChange(index, 'duration', e.target.value)}
+                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+              />
+            </td>
+            <td>  
+              <input
+                type="text"
+                value={row.months || 'N/A'}
+                onChange={(e) => onCorrectionChange(index, 'months', e.target.value)}
+                disabled={!row.isCompleted && (index > 0 && !drugs[index - 1].isCompleted)}
+              />
+            </td>
           </tr>
         ))}
       </tbody>
     </table>
   );
 };
+
 
 
 export default App;
