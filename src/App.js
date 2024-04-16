@@ -10,6 +10,32 @@ function App() {
     fetchUncorrectedAnnotations();
   }, []);
   const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const handleUsernameChange = (event) => {
+    setUserName(event.target.value);
+  };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
+
+  // Handle login submission
+  const handleLogin = async () => {
+    const response = await fetch('http://localhost:8080/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userName, password }),
+    });
+    const data = await response.json();
+    if (data.success) {
+      localStorage.setItem('name', userName);
+      setIsLoggedIn(true);
+    } else {
+      alert('Login failed: ' + data.message);
+    }
+  };
 
   const fetchUncorrectedAnnotations = () => {
     fetch('http://localhost:8080/uncorrected-annotations')
@@ -142,20 +168,20 @@ const handleCorrectionChange = (correctionIndex, column, value) => {
 
 
 
-
-
-
+if (!isLoggedIn) {
+  return (
+    <div className="login-container">
+      <input type="text" value={userName} onChange={handleUsernameChange} placeholder="Username" />
+      <input type="password" value={password} onChange={handlePasswordChange} placeholder="Password" />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+}
 
   return (
     <div className="App">
       <div className="content-container">
-      <input
-          style={{ position: 'absolute', left: 0, top: 0, margin: '10px' }}
-          type="text"
-          placeholder="Enter your name"
-          value={userName}
-          onChange={e => setUserName(e.target.value)}
-        />
+      <h1 className="greeting">Hi, {userName}!</h1>
         <button onClick={handlePreviousPage} disabled={currentPage === 0}>Previous Page</button>
        {patientsData && <button onClick={handleNextPage} disabled={currentPage === patientsData.length - 1}>Next Page</button>}
         {/* {patientsData.length === 0 && (
