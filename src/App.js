@@ -25,7 +25,7 @@ function App() {
   }, []);
 
   const handleLogin = async () => {
-    const response = await fetch('https://data-validator-backend.onrender.com/login', {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userName, password }),
@@ -40,7 +40,7 @@ function App() {
   };
 
   const fetchUncorrectedAnnotations = () => {
-    fetch('https://data-validator-backend.onrender.com/uncorrected-annotations')
+    fetch(`${process.env.REACT_APP_BACKEND}/uncorrected-annotations`)
       .then(response => response.json())
       .then(data => {
         setPatientsData(data);
@@ -159,7 +159,7 @@ const handleCorrectionChange = (correctionIndex, column, value) => {
         extracted_drugs: corrections[currentPage].extracted_drugs,
     });
 
-    fetch('https://data-validator-backend.onrender.com/annotations', {
+    fetch(`${process.env.REACT_APP_BACKEND}/annotations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: correctionsData,
