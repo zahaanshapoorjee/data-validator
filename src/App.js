@@ -15,7 +15,6 @@ function App() {
       .then(response => response.json())
       .then(data => {
         setPatientsData(data);
-        console.log(data)
         // Assuming data is not empty, set corrections for the first patient
         if (data.length > 0) {
           setCorrections(data);
@@ -52,7 +51,6 @@ function App() {
 // Function to handle corrections change
 // Function to handle corrections change
 const handleCorrectionChange = (correctionIndex, column, value) => {
-  console.log("old", corrections);
 
   const updatedCorrections = corrections.map((correction, index) => {
       if (index === currentPage) {  // Check if we are modifying the correction for the current page
@@ -82,7 +80,6 @@ const handleCorrectionChange = (correctionIndex, column, value) => {
       return correction;  // Return unmodified correction for other pages
   });
 
-  console.log("new", updatedCorrections);
   setCorrections(updatedCorrections);  // Set the state to the new corrections array
 };
 
@@ -210,7 +207,6 @@ const Table = ({ data }) => {
   let drugs = [];
   try {
     drugs = JSON.parse(data.extracted_drugs.replace(/'/g, '"')); // replacing single quotes with double quotes for valid JSON
-    console.log(drugs);
   } catch (error) {
     console.error("Failed to parse extracted drugs:", error);
     // Optionally handle the error more gracefully here
