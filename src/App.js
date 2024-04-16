@@ -2,16 +2,13 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
-  // Combined state for each patient's data, including ground truth and LLM predictions
-  const [patientsData, setPatientsData] = useState(null); // Initialize to empty array
-
-  // Fetch initial data from the backend
-  useEffect(() => {
-    fetchUncorrectedAnnotations();
-  }, []);
+  const [patientsData, setPatientsData] = useState(null);
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [corrections, setCorrections] = useState([]);
+
 
   const handleUsernameChange = (event) => {
     setUserName(event.target.value);
@@ -21,7 +18,10 @@ function App() {
     setPassword(event.target.value);
   };
 
-  // Handle login submission
+  useEffect(() => {
+    fetchUncorrectedAnnotations();
+  }, []);
+
   const handleLogin = async () => {
     const response = await fetch('http://localhost:8080/login', {
       method: 'POST',
@@ -42,72 +42,58 @@ function App() {
       .then(response => response.json())
       .then(data => {
         setPatientsData(data);
-        // Assuming data is not empty, set corrections for the first patient
         if (data.length > 0) {
           setCorrections(data);
         }
-        setCurrentPage(0); // Reset to the first page of new data
+        setCurrentPage(0); 
       })
       .catch(error => {
         console.error('Error:', error);
       });
   };
-  // Index of the current patient to display
-  const [currentPage, setCurrentPage] = useState(0);
-
-  // Separate state for corrections, initialized as a copy of the LLM prediction
-  const [corrections, setCorrections] = useState([]);
-
   
 
-  // Function to handle next page button click
   const handleNextPage = () => {
     if (currentPage < patientsData.length - 1) {
       setCurrentPage(currentPage + 1);
     }
   };
 
-  // Function to handle previous page button click
   const handlePreviousPage = () => {
     if (currentPage > 0) {
       setCurrentPage(currentPage - 1);
     }
   };
 
-  // Function to handle corrections change
-// Function to handle corrections change
-// Function to handle corrections change
 const handleCorrectionChange = (correctionIndex, column, value) => {
 
   const updatedCorrections = corrections.map((correction, index) => {
-      if (index === currentPage) {  // Check if we are modifying the correction for the current page
-          // Parsing extracted_drugs JSON string into an array
+      if (index === currentPage) {  
           let extractedDrugs = [];
           try {
-              extractedDrugs = JSON.parse(correction.extracted_drugs.replace(/'/g, '"'));  // Ensure all single quotes are replaced by double quotes
+              extractedDrugs = JSON.parse(correction.extracted_drugs.replace(/'/g, '"'));  
           } catch (error) {
               console.error("Failed to parse extracted_drugs:", error);
-              // Optionally handle the error more gracefully here
-              return correction;  // Return the current correction unmodified in case of parsing failure
+              return correction;  
           }
 
           return {
-              ...correction,  // Spread existing correction object
+              ...correction,  
               extracted_drugs: JSON.stringify(extractedDrugs.map((drug, idx) => {
-                  if (idx === correctionIndex) {  // Find the specific drug entry that needs update
+                  if (idx === correctionIndex) { 
                       return {
                           ...drug,
-                          [column]: value  // Update the specific column with new value
+                          [column]: value  
                       };
                   }
-                  return drug;  // Return unmodified drug for other indices
+                  return drug; 
               }))
           };
       }
-      return correction;  // Return unmodified correction for other pages
+      return correction;  
   });
 
-  setCorrections(updatedCorrections);  // Set the state to the new corrections array
+  setCorrections(updatedCorrections); 
 };
 
 
@@ -149,15 +135,12 @@ const handleCorrectionChange = (correctionIndex, column, value) => {
         const updatedPatientsData = patientsData.filter((_, index) => index !== currentPage);
         setPatientsData(updatedPatientsData);
 
-        // Update corrections to remove the current page's corrections
         const updatedCorrections = corrections.filter((_, index) => index !== currentPage);
         setCorrections(updatedCorrections);
 
-        // If there are no more patients to correct, fetch more.
         if (updatedPatientsData.length === 0) {
             fetchUncorrectedAnnotations();
         } else {
-            // Adjust the current page if the last patient was corrected.
             setCurrentPage(prev => prev > 0 ? prev - 1 : 0);
         }
     })
@@ -222,16 +205,13 @@ if (!isLoggedIn) {
   );
 }
 
-// Non-editable table component
 const Table = ({ data }) => {
 
-  // Attempt to parse the 'extracted_drugs' string into an array
   let drugs = [];
   try {
-    drugs = JSON.parse(data.extracted_drugs.replace(/'/g, '"')); // replacing single quotes with double quotes for valid JSON
+    drugs = JSON.parse(data.extracted_drugs.replace(/'/g, '"')); 
   } catch (error) {
     console.error("Failed to parse extracted drugs:", error);
-    // Optionally handle the error more gracefully here
   }
 
   return (
@@ -260,9 +240,6 @@ const Table = ({ data }) => {
   );
 }
 
-
-// Editable table component
-// Editable table component
 const EditableTable = ({ data, onCorrectionChange, toggleCompletion }) => {
   let drugs = [];
   try {
