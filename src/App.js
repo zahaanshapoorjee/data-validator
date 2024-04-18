@@ -39,6 +39,12 @@ function App() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('name');
+    setIsLoggedIn(false);
+    setCurrentPage(0);
+  };
+  
   const fetchUncorrectedAnnotations = () => {
     fetch(`${process.env.REACT_APP_BACKEND}/uncorrected-annotations`)
       .then(response => response.json())
@@ -205,6 +211,7 @@ if (!isLoggedIn) {
     <div className="App">
       <div className="content-container">
       <h1 className="greeting">Hi, {userName}!</h1>
+      <button onClick={handleLogout} style={{ marginLeft: '20px', padding: '10px 20px' }}>Logout</button>
         <button onClick={handlePreviousPage} disabled={currentPage === 0}>Previous Page</button>
        {patientsData && <button onClick={handleNextPage} disabled={currentPage === patientsData.length - 1}>Next Page</button>}
         {/* {patientsData.length === 0 && (
